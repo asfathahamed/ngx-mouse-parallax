@@ -7,7 +7,7 @@
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
-      "prefix": "app",
+      "prefix": "parallax",
       "schematics": {},
       "architect": {
         "build": {
@@ -23,7 +23,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/assets/styles/parallax.css"
             ],
             "scripts": []
           },
@@ -118,6 +119,29 @@
             "exclude": [
               "**/node_modules/**"
             ]
+          }
+        }
+      }
+    },
+    "ng-mouse-demo": {
+      "root": "demo/",
+      "projectType": "application",
+      "architect": {
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "ng-mouse-parallax:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "ng-mouse-parallax:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "ng-mouse-parallax:build"
           }
         }
       }
