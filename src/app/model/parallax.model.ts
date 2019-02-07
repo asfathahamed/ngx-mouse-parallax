@@ -10,6 +10,11 @@ export interface Axis {
   yAxis: 'top' | 'bottom' | 'center' | number;
 }
 
+export interface Speed {
+  xAxis: number;
+  yAxis: number;
+}
+
 export enum Direction {
   Default = 'default',
   Inverted = 'inverted',

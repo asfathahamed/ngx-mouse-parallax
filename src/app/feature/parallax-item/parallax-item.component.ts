@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, Input, HostBinding } from '@angular/core';
-import { Coordinate, Axis, Direction } from 'src/app/model/parallax.model';
+import { Coordinate, Axis, Direction, Speed } from 'src/app/model/parallax.model';
 import { ParallaxService } from 'src/app/data-service/parallax.service';
 
 @Component({
@@ -15,13 +15,22 @@ export class ParallaxItemComponent implements OnInit {
    * eg: '10 20' will add 10px left and 20px top
    */
   private styleClass = '';
-  private coordinate: Coordinate;
+  private initialCoordinate: Coordinate;
+  private _coordinate = {} as Coordinate;
+  private get coordinate() {
+    return this._coordinate;
+  }
+  private set coordinate(value: Coordinate) {
+    this._coordinate.left = value.left - this.initialCoordinate.left;
+    this._coordinate.top = value.top - this.initialCoordinate.top;
+  }
   private element: HTMLElement;
 
   @Input() src: string;
   @Input() alt: string;
   @Input() direction: Direction = Direction.Default;
   @Input() position: Axis = {xAxis: 0, yAxis: 0};
+  @Input() speed: Speed = {xAxis: 35, yAxis: 35};
   @HostBinding('class') classes = this.styleClass;
 
   constructor(
@@ -32,8 +41,14 @@ export class ParallaxItemComponent implements OnInit {
   }
 
   ngOnInit() {
+    // TODO: Get coordinate initial value
     this.parallaxService.getCoordinate().subscribe(response => {
+      this.initialCoordinate = this.initialCoordinate || response;
       this.coordinate = response;
+      console.log({
+        initial: this.initialCoordinate,
+        current: this.coordinate
+      });
       this.changePosition();
     });
     if (this.direction === Direction.Inverted) {
@@ -45,15 +60,16 @@ export class ParallaxItemComponent implements OnInit {
     }
   }
 
+  // TODO: adjust position from coordinate initial value
   public changePosition() {
     const left = Math.ceil(this.coordinate.left);
     const top = Math.ceil(this.coordinate.top);
     if (this.direction === Direction.Inverted) {
-      this.el.nativeElement.style.bottom = top + '%';
-      this.el.nativeElement.style.right = left + '%';
+      this.el.nativeElement.style.bottom = (top * this.speed.yAxis) / 100 + '%';
+      this.el.nativeElement.style.right = (left * this.speed.xAxis) / 100  + '%';
     } else {
-      this.el.nativeElement.style.top = top + '%';
-      this.el.nativeElement.style.left = left + '%';
+      this.el.nativeElement.style.top = (top * this.speed.yAxis) / 100  + '%';
+      this.el.nativeElement.style.left = (left * this.speed.xAxis) / 100  + '%';
     }
   }
 }
