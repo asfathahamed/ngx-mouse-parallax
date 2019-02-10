@@ -15,15 +15,16 @@ export class ParallaxItemComponent implements OnInit {
    * eg: '10 20' will add 10px left and 20px top
    */
   private styleClass = '';
-  private initialCoordinate: Coordinate;
-  private _coordinate = {} as Coordinate;
-  private get coordinate() {
-    return this._coordinate;
-  }
-  private set coordinate(value: Coordinate) {
-    this._coordinate.left = value.left - this.initialCoordinate.left;
-    this._coordinate.top = value.top - this.initialCoordinate.top;
-  }
+  private coordinate: Coordinate;
+  private parentCoordinate: Coordinate;
+  // private _coordinate = {} as Coordinate;
+  // private get coordinate() {
+  //   return this._coordinate;
+  // }
+  // private set coordinate(value: Coordinate) {
+  //   this._coordinate.left = value.left - this.initialCoordinate.left;
+  //   this._coordinate.top = value.top - this.initialCoordinate.top;
+  // }
   private element: HTMLElement;
 
   @Input() src: string;
@@ -43,33 +44,58 @@ export class ParallaxItemComponent implements OnInit {
   ngOnInit() {
     // TODO: Get coordinate initial value
     this.parallaxService.getCoordinate().subscribe(response => {
-      this.initialCoordinate = this.initialCoordinate || response;
-      this.coordinate = response;
-      console.log({
-        initial: this.initialCoordinate,
-        current: this.coordinate
-      });
-      this.changePosition();
+      this.parentCoordinate = response;
+      if (!this.coordinate) {
+        // Set Defaults
+        this.setDefaults();
+        // Set Middle Point of
+        this.setCenterPosition(this.position);
+      }
+      this.changePosition(this.parentCoordinate);
     });
-    if (this.direction === Direction.Inverted) {
-      this.el.nativeElement.style.right = this.position.xAxis;
-      this.el.nativeElement.style.bottom = this.position.yAxis;
-    } else {
-      this.el.nativeElement.style.left = this.position.xAxis;
-      this.el.nativeElement.style.top = this.position.yAxis;
-    }
+
+  }
+
+  private setDefaults(): any {
+    const width = this.parentCoordinate.width * this.speed.xAxis;
+    const height = this.parentCoordinate.height * this.speed.yAxis;
+    this.coordinate = {} as Coordinate;
+    this.coordinate['width'] = width === 0 ? 0 : (width / 100);
+    this.coordinate['height'] = height === 0 ? 0 : (height / 100);
+    this.coordinate['left'] = this.position.xAxis - this.coordinate.width / 2;
+    this.coordinate['top'] = this.position.yAxis - this.coordinate.height / 2;
+
+    // console.log({
+    //   'xAxis': this.position.xAxis,
+    //   'yAxis': this.position.yAxis,
+    //   'width': this.coordinate.width,
+    //   'height': this.coordinate.height
+    // });
+  }
+
+  private setCenterPosition(position): void {
+    this.el.nativeElement.style.left = position.xAxis;
+    this.el.nativeElement.style.top = position.yAxis;
   }
 
   // TODO: adjust position from coordinate initial value
-  public changePosition() {
-    const left = Math.ceil(this.coordinate.left);
-    const top = Math.ceil(this.coordinate.top);
+  private changePosition(mouseCoordinate: Coordinate) {
+    let left = (mouseCoordinate.left * this.speed.xAxis) / 10;
+    let top = (mouseCoordinate.top * this.speed.yAxis) / 10;
+
     if (this.direction === Direction.Inverted) {
-      this.el.nativeElement.style.bottom = (top * this.speed.yAxis) / 100 + '%';
-      this.el.nativeElement.style.right = (left * this.speed.xAxis) / 100  + '%';
+      left = this.coordinate.left - left;
+      top = this.coordinate.top - top;
     } else {
-      this.el.nativeElement.style.top = (top * this.speed.yAxis) / 100  + '%';
-      this.el.nativeElement.style.left = (left * this.speed.xAxis) / 100  + '%';
+      left = this.coordinate.left + left;
+      top = this.coordinate.top + top;
     }
+
+    left = Math.ceil(left);
+    top = Math.ceil(top);
+    this.el.nativeElement.style.top = `${top}px`;
+    this.el.nativeElement.style.left = `${left}px`;
+    this.el.nativeElement.style.bottom = `auto`;
+    this.el.nativeElement.style.right = `auto`;
   }
 }

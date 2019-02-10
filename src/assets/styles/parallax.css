@@ -1,8 +1,9 @@
 app-parallax {
-  display: block;
-  height: 500px;
-  position: relative;
   border: 3px solid #00bcd4;
+  display: block;
+  height: 600px;
+  overflow: hidden;
+  position: relative;
 }
 
 app-parallax-item {

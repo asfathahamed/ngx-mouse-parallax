@@ -6,8 +6,11 @@ export interface Coordinate {
 }
 
 export interface Axis {
-  xAxis: 'left' | 'right' | 'center' | number;
-  yAxis: 'top' | 'bottom' | 'center' | number;
+  // xAxis: 'left' | 'right' | 'center' | number;
+  // yAxis: 'top' | 'bottom' | 'center' | number;
+  // TODO: Write code to support strinng input as above
+  xAxis: number;
+  yAxis: number;
 }
 
 export interface Speed {
